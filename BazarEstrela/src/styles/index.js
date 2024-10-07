@@ -1,6 +1,26 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+    altButton: {
+        backgroundColor: '#FF8C00',
+        widith: '80%',
+        margin: 25,
+        padding: 10,
+        borderRadius: 2,
+        alignnItems: 'center',
+    },
+    icone: {
+        width: 25, 
+        height: 25, 
+        resizeMode: 'center', 
+      },
+    item: {
+        padding: 10,
+        marginVertical: 8,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 5,
+      },
     loginTitle: {
         fontSize: 15,
         fontFamily: 'Roboto',
@@ -10,6 +30,7 @@ export const styles = StyleSheet.create({
     image: {
         width: 500, 
         height: 200, 
+        margin: -40,
         resizeMode: 'center', 
       },
     container: {
@@ -57,4 +78,5 @@ export const styles = StyleSheet.create({
     subTextButton: {
         color: '#FF8C00',
     }
+    
 });

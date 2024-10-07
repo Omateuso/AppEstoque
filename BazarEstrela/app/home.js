@@ -17,14 +17,14 @@ export default function Home() {
 
       <Pressable
         style={styles.button}
-        onPress={() => router.push("/view-stock")} // Navegar para a tela de visualização de estoque
+        onPress={() => router.push("/ViewStock")} // Navegar para a tela de visualização de estoque
       >
         <Text style={styles.buttonText}>Visualizar Estoque</Text>
       </Pressable>
 
       <Pressable
         style={styles.button}
-        onPress={() => router.push("/add-stock")} // Navegar para a tela de adicionar novo item ao estoque
+        onPress={() => router.push("/AddItem")} // Navegar para a tela de adicionar novo item ao estoque
       >
         <Text style={styles.buttonText}>Adicionar Novo Item</Text>
       </Pressable>
