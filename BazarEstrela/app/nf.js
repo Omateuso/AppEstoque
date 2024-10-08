@@ -33,7 +33,12 @@ const GenerateInvoice = () => {
     setItemPrice('');
   };
 
+  const calculateTotalPrice = () => {
+    return items.reduce((total, item) => total + item.quantity * item.price, 0).toFixed(2);
+  };
+
   const generatePDF = async () => {
+    const totalPrice = calculateTotalPrice();
     const html = `
       <h1>Nota Fiscal</h1>
       <h2>Emitente</h2>
@@ -46,6 +51,8 @@ const GenerateInvoice = () => {
       <ul>
         ${items.map(item => `<li>${item.name} - ${item.quantity} - R$ ${item.price.toFixed(2)}</li>`).join('')}
       </ul>
+      <h2>Total</h2>
+      <p>R$ ${totalPrice}</p>
     `;
 
     try {
@@ -85,12 +92,14 @@ const GenerateInvoice = () => {
           onChangeText={setEmitenteEndereco}
           style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
         />
-        <TextInput
+
+<TextInput
           placeholder="CNPJ"
           value={emitenteCNPJ}
           onChangeText={setEmitenteCNPJ}
           style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
         />
+
         <TextInput
           placeholder="Nome do Destinatário"
           value={destinatarioNome}
