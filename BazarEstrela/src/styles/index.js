@@ -1,13 +1,21 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
+    iconeButton: {
+        backgroundColor: '#FF8C00',
+        width: '12%',
+        margin: 20,
+        padding: 10,
+        borderRadius: 2000,
+        alignItems: 'center',
+    },
     altButton: {
         backgroundColor: '#FF8C00',
-        widith: '80%',
+        width: '80%',
         margin: 25,
         padding: 10,
         borderRadius: 2,
-        alignnItems: 'center',
+        alignItems: 'center',
     },
     icone: {
         width: 25, 
@@ -56,11 +64,11 @@ export const styles = StyleSheet.create({
     },
     formButton: {
         backgroundColor: '#FF8C00',
-        widith: '80%',
+        width: '30%',
         margin: 10,
         padding: 10,
         borderRadius: 10,
-        alignnItems: 'center',
+        alignItems: 'center',
     },
     textButton:{
         color: 'white',
