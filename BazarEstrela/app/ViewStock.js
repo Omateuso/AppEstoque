@@ -1,84 +1,100 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, Pressable, Alert, Image } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importa AsyncStorage
+import { View, Text, FlatList, Pressable, Alert, Image, TextInput } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { styles } from '../src/styles/index';
 import { useRouter } from 'expo-router';
 
 export default function ViewStock() {
-  const [stockItems, setStockItems] = useState([]); // Estado para armazenar os itens de estoque
+  const [itemName, setItemName] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [stockItems, setStockItems] = useState([]);
+  const [showForm, setShowForm] = useState(false);
   const router = useRouter();
 
-  // Função para carregar os dados de estoque do AsyncStorage
+  const handleAddItem = async () => {
+    if (!itemName || !quantity || isNaN(quantity) || parseInt(quantity) <= 0) {
+      Alert.alert('Erro', 'Todos os campos devem ser preenchidos com valores válidos');
+      return;
+    }
+
+    try {
+      const storedItems = await AsyncStorage.getItem('@stock_items');
+      const stockItems = storedItems ? JSON.parse(storedItems) : [];
+
+      const newItem = { id: Date.now().toString(), name: itemName, quantity: parseInt(quantity) };
+      const updatedStockItems = [...stockItems, newItem];
+
+      await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedStockItems));
+
+      Alert.alert('Sucesso', `Item ${itemName} adicionado com quantidade de ${quantity}`);
+      setItemName('');
+      setQuantity('');
+      setShowForm(false);
+      setStockItems(updatedStockItems);
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível adicionar o item');
+    }
+  };
+
   const loadStockItems = async () => {
     try {
       const storedItems = await AsyncStorage.getItem('@stock_items');
       if (storedItems !== null) {
-        setStockItems(JSON.parse(storedItems)); // Converte os dados salvos em um array
+        setStockItems(JSON.parse(storedItems));
       }
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível carregar os itens de estoque');
     }
   };
 
-  // Função para diminuir a quantidade do item
   const decreaseQuantity = async (id) => {
     try {
       const updatedItems = stockItems.map(item => {
         if (item.id === id) {
           if (item.quantity > 0) {
-            return { ...item, quantity: item.quantity - 1 }; // Diminui a quantidade
+            return { ...item, quantity: item.quantity - 1 };
           } else {
             Alert.alert('Aviso', 'A quantidade não pode ser inferior a 0');
-            return item; // Mantém a quantidade mínima de 1
+            return item;
           }
         }
         return item;
       });
 
-      setStockItems(updatedItems); // Atualiza o estado com a nova quantidade
-
-      // Atualiza o AsyncStorage com a lista modificada
+      setStockItems(updatedItems);
       await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedItems));
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível atualizar a quantidade');
     }
   };
 
-  // Função para aumentar a quantidade do item
   const increaseQuantity = async (id) => {
     try {
       const updatedItems = stockItems.map(item => {
         if (item.id === id) {
-          return { ...item, quantity: item.quantity + 1 }; // Aumenta a quantidade
+          return { ...item, quantity: item.quantity + 1 };
         }
         return item;
       });
 
-      setStockItems(updatedItems); // Atualiza o estado com a nova quantidade
-
-      // Atualiza o AsyncStorage com a lista modificada
+      setStockItems(updatedItems);
       await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedItems));
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível aumentar a quantidade');
     }
   };
 
-  // Função para remover o item do estoque
   const removeItem = async (id) => {
     try {
-      const updatedItems = stockItems.filter(item => item.id !== id); // Remove o item com o id correspondente
-      setStockItems(updatedItems); // Atualiza o estado com a lista filtrada
-
-      // Atualiza o AsyncStorage com a lista modificada
+      const updatedItems = stockItems.filter(item => item.id !== id);
+      setStockItems(updatedItems);
       await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedItems));
-
       Alert.alert('Sucesso', 'Item removido com sucesso');
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível remover o item');
     }
   };
 
-  // Carrega os itens de estoque assim que o componente é montado
   useEffect(() => {
     loadStockItems();
   }, []);
@@ -87,7 +103,48 @@ export default function ViewStock() {
     <View style={styles.container}>
       <Text style={styles.formTitle}>Estoque Atual</Text>
 
-      {/* FlatList para renderizar a lista de itens de estoque */}
+      {!showForm && (
+        <Pressable 
+          style={styles.iconeButton}
+          onPress={() => setShowForm(true)}
+        >
+          <Image source={require('../src/imagens/AdicionarItem.png')} style={styles.icone} />
+        </Pressable>
+      )}
+
+      {showForm && (
+        <View style={{ marginBottom: 20 }}>
+          <Pressable 
+            style={{ alignSelf: 'flex-end', padding: 5 }}
+            onPress={() => setShowForm(false)}
+          >
+            <Text style={{ fontSize: 20, color: 'red' }}>X</Text>
+          </Pressable>
+
+          <TextInput
+            style={styles.formInput}
+            placeholder="Nome do Item"
+            value={itemName}
+            onChangeText={setItemName}
+          />
+
+          <TextInput
+            style={styles.formInput}
+            placeholder="Quantidade"
+            value={quantity}
+            onChangeText={setQuantity}
+            keyboardType="numeric"
+          />
+
+          <Pressable 
+            style={styles.iconeButton}
+            onPress={handleAddItem}
+          >
+            <Image source={require('../src/imagens/Salvar.png')} style={styles.icone} />
+          </Pressable>
+        </View>
+      )}
+
       <FlatList
         data={stockItems}
         keyExtractor={(item) => item.id}
@@ -97,39 +154,32 @@ export default function ViewStock() {
             <Text>Quantidade: {item.quantity}</Text>
 
             <View style={{ flexDirection: 'row' }}>
-              {/* Botão para diminuir a quantidade */}
               <Pressable 
-                style={styles.altButton}
-                onPress={() => decreaseQuantity(item.id)} // Função de diminuir quantidade
+                style={styles.iconeButton}
+                onPress={() => decreaseQuantity(item.id)} 
+                disabled={item.quantity <= 0} // Desabilita se a quantidade for zero
               >
                 <Text style={styles.textButton}>-</Text>
               </Pressable>
 
-              {/* Botão para aumentar a quantidade */}
               <Pressable 
-                style={styles.altButton}
-                onPress={() => increaseQuantity(item.id)} // Função de aumentar quantidade
+                style={styles.iconeButton}
+                onPress={() => increaseQuantity(item.id)}
               >
                 <Text style={styles.textButton}>+</Text>
               </Pressable>
 
-              {/* Botão para remover o item */}
               <Pressable 
-                style={[styles.altButton, { backgroundColor: 'red' }]} // Muda a cor do botão para vermelho
-                onPress={() => removeItem(item.id)} // Função para remover o item
+                style={[styles.iconeButton, { backgroundColor: 'red' }]}
+                onPress={() => removeItem(item.id)}
               >
-                <Image
-                        source={require('../src/imagens/Lixeira.png')} 
-                        style={styles.icone}>
-
-                </Image>
+                <Image source={require('../src/imagens/Lixeira.png')} style={styles.icone} />
               </Pressable>
             </View>
           </View>
         )}
       />
 
-      {/* Botão para voltar à página inicial */}
       <Pressable 
         style={styles.formButton}
         onPress={() => router.push("/home")} 

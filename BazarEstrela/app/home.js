@@ -24,9 +24,9 @@ export default function Home() {
 
       <Pressable
         style={styles.button}
-        onPress={() => router.push("/AddItem")} // Navegar para a tela de adicionar novo item ao estoque
+        onPress={() => router.push("/nf")} // Navegar para a tela de visualização de estoque
       >
-        <Text style={styles.buttonText}>Adicionar Novo Item</Text>
+        <Text style={styles.buttonText}>Gerar Nota Fiscal</Text>
       </Pressable>
 
       <Pressable
