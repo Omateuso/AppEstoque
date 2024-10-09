@@ -1,10 +1,13 @@
 import React, { useState } from 'react'; 
-import { View, TextInput, Text, Pressable, Alert, FlatList, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, Text, Pressable, Alert, FlatList, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import * as Print from 'expo-print';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import { styles } from "../src/styles";
+import { useRouter } from "expo-router";
 
 const GenerateInvoice = () => {
+  const router = useRouter();
   const [emitenteNome, setEmitenteNome] = useState('');
   const [emitenteEndereco, setEmitenteEndereco] = useState('');
   const [emitenteCNPJ, setEmitenteCNPJ] = useState('');
@@ -77,78 +80,89 @@ const GenerateInvoice = () => {
 
   return (
     <KeyboardAvoidingView 
-      style={{ flex: 1, padding: 20 }} 
+      style={{ flex: 1 }} 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <View style={{ flex: 1 }}>
-        <TextInput
-          placeholder="Nome do Emitente"
-          value={emitenteNome}
-          onChangeText={setEmitenteNome}
-          style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
-        />
-        <TextInput
-          placeholder="Endereço do Emitente"
-          value={emitenteEndereco}
-          onChangeText={setEmitenteEndereco}
-          style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
-        />
+      <ScrollView contentContainerStyle={{ flexGrow: 1, padding: 20 }}>
+        <View style={{ flex: 1 }}>
+          <TextInput
+            placeholder="Nome do Emitente"
+            value={emitenteNome}
+            onChangeText={setEmitenteNome}
+            style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
+          />
+          <TextInput
+            placeholder="Endereço do Emitente"
+            value={emitenteEndereco}
+            onChangeText={setEmitenteEndereco}
+            style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
+          />
+          <TextInput
+            placeholder="CNPJ"
+            value={emitenteCNPJ}
+            onChangeText={setEmitenteCNPJ}
+            style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
+          />
+          <TextInput
+            placeholder="Nome do Destinatário"
+            value={destinatarioNome}
+            onChangeText={setDestinatarioNome}
+            style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
+          />
+          <TextInput
+            placeholder="Endereço do Destinatário"
+            value={destinatarioEndereco}
+            onChangeText={setDestinatarioEndereco}
+            style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
+          />
+          <TextInput
+            placeholder="Nome do Item"
+            value={itemName}
+            onChangeText={setItemName}
+            style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
+          />
+          <TextInput
+            placeholder="Quantidade"
+            value={itemQuantity}
+            onChangeText={setItemQuantity}
+            keyboardType="numeric"
+            style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
+          />
+          <TextInput
+            placeholder="Preço"
+            value={itemPrice}
+            onChangeText={setItemPrice}
+            keyboardType="numeric"
+            style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
+          />
+          
+          <FlatList
+            data={items}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <Text>{item.name} - {item.quantity} - R$ {item.price.toFixed(2)}</Text>
+            )}
+          />
 
-<TextInput
-          placeholder="CNPJ"
-          value={emitenteCNPJ}
-          onChangeText={setEmitenteCNPJ}
-          style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
-        />
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 10 }}>
+            <Pressable onPress={addItem} style={{ backgroundColor: '#FF8C00', padding: 10, width: '80%' }}>
+              <Text style={{ color: '#fff', textAlign: 'center' }}>Adicionar Item</Text>
+            </Pressable>
+          </View>
 
-        <TextInput
-          placeholder="Nome do Destinatário"
-          value={destinatarioNome}
-          onChangeText={setDestinatarioNome}
-          style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
-        />
-        <TextInput
-          placeholder="Endereço do Destinatário"
-          value={destinatarioEndereco}
-          onChangeText={setDestinatarioEndereco}
-          style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
-        />
-        <TextInput
-          placeholder="Nome do Item"
-          value={itemName}
-          onChangeText={setItemName}
-          style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
-        />
-        <TextInput
-          placeholder="Quantidade"
-          value={itemQuantity}
-          onChangeText={setItemQuantity}
-          keyboardType="numeric"
-          style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
-        />
-        <TextInput
-          placeholder="Preço"
-          value={itemPrice}
-          onChangeText={setItemPrice}
-          keyboardType="numeric"
-          style={{ marginBottom: 10, borderWidth: 1, padding: 8 }}
-        />
-        
-        <FlatList
-          data={items}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-            <Text>{item.name} - {item.quantity} - R$ {item.price.toFixed(2)}</Text>
-          )}
-        />
+          <View style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 10 }}>
+              <Pressable onPress={generatePDF} style={{ backgroundColor: '#28A745', padding: 10, width: '80%', alignItems: 'center' }}>
+                <Text style={{ color: '#fff' }}>Gerar Nota Fiscal</Text>
+              </Pressable>
+            </View>
 
-        <Pressable onPress={addItem} style={{ marginBottom: 10, backgroundColor: '#FF8C00', padding: 10 }}>
-          <Text style={{ color: '#fff' }}>Adicionar Item</Text>
-        </Pressable>
+        </View>
 
-        <Pressable onPress={generatePDF} style={{ marginTop: 0, backgroundColor: '#28A745', padding: 10 }}>
-          <Text style={{ color: '#fff' }}>Gerar Nota Fiscal</Text>
-        </Pressable>
-      </View>
+        <Pressable 
+                    onPress={() => router.push("/home")}
+                >
+                    <Text style={styles.subTextButton}>Voltar</Text>
+                </Pressable>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 };
