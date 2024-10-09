@@ -8,6 +8,14 @@
       "expo-router"
     ],
     "name": "router-estoque",
-    "slug": "router-estoque"
+    "slug": "router-estoque",
+    "extra": {
+      "eas": {
+        "projectId": "6fcd397c-8982-43b5-95ad-936a92172bcb"
+      }
+    },
+    "android": {
+      "package": "com.omateuso.routerestoque"
+    }
   }
 }
