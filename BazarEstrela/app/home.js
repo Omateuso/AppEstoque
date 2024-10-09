@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from "expo-router"; // Usar para navegação entre telas
+import {auth} from '../src/firebase/firebase.config';
 
 export default function Home() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      {/* Exibir o e-mail do usuário logado */}
+      <Text style={styles.email}>{auth.currentUser ? auth.currentUser.email : 'Usuário Desconhecido'}</Text>
+
       <Text style={styles.title}>Bem-vindo ao Gerenciador de Estoque</Text>
 
       <Pressable
@@ -24,7 +28,7 @@ export default function Home() {
 
       <Pressable
         style={styles.button}
-        onPress={() => router.push("/nf")} // Navegar para a tela de visualização de estoque
+        onPress={() => router.push("/nf")} // Navegar para a tela de geração de nota fiscal
       >
         <Text style={styles.buttonText}>Gerar Nota Fiscal</Text>
       </Pressable>
@@ -32,7 +36,7 @@ export default function Home() {
       <Pressable
         style={[styles.button, styles.logoutButton]}
         onPress={logout} // Função de logout
-        >
+      >
         <Text style={styles.buttonText}>Sair</Text>
       </Pressable>
     </View>
@@ -68,5 +72,13 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 18,
     fontWeight: '600',
+  },
+  email: {
+    position: 'absolute', // Posição absoluta para o canto superior direito
+    top: 20,
+    right: 20,
+    fontSize: 16,
+    color: '#333',
+    fontWeight: 'bold',
   },
 });

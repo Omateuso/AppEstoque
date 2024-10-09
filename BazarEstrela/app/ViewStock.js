@@ -10,6 +10,17 @@ export default function ViewStock() {
   const [stockItems, setStockItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
+  const [userId, setUserId] = useState('');
+
+  useEffect(() => {
+    const loadUserId = async () => {
+      const id = await AsyncStorage.getItem('@user_id'); // Carrega o ID do usuário
+      setUserId(id);
+      loadStockItems(id); // Carrega os itens do estoque filtrados pelo usuário
+    };
+    
+    loadUserId();
+  }, []);
 
   const handleAddItem = async () => {
     if (!itemName || !quantity || isNaN(quantity) || parseInt(quantity) <= 0) {
@@ -21,26 +32,45 @@ export default function ViewStock() {
       const storedItems = await AsyncStorage.getItem('@stock_items');
       const stockItems = storedItems ? JSON.parse(storedItems) : [];
 
-      const newItem = { id: Date.now().toString(), name: itemName, quantity: parseInt(quantity) };
-      const updatedStockItems = [...stockItems, newItem];
+      const existingItemIndex = stockItems.findIndex(item => 
+        item.name.toLowerCase() === itemName.toLowerCase() && item.userId === userId
+      );
 
-      await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedStockItems));
+      if (existingItemIndex !== -1) {
+        // Item já existe, apenas aumenta a quantidade
+        const updatedStockItems = [...stockItems];
+        updatedStockItems[existingItemIndex].quantity += parseInt(quantity);
+        await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedStockItems));
 
-      Alert.alert('Sucesso', `Item ${itemName} adicionado com quantidade de ${quantity}`);
+        Alert.alert('Sucesso', `Quantidade de ${itemName} aumentada em ${quantity}`);
+        setStockItems(updatedStockItems);
+      } else {
+        // Item não existe, adiciona um novo
+        const newItem = { id: Date.now().toString(), name: itemName, quantity: parseInt(quantity), userId };
+        const updatedStockItems = [...stockItems, newItem];
+        await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedStockItems));
+
+        Alert.alert('Sucesso', `Item ${itemName} adicionado com quantidade de ${quantity}`);
+        setStockItems(updatedStockItems);
+      }
+
+      // Limpa os campos e fecha o formulário
       setItemName('');
       setQuantity('');
       setShowForm(false);
-      setStockItems(updatedStockItems);
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível adicionar o item');
     }
   };
 
-  const loadStockItems = async () => {
+  const loadStockItems = async (userId) => {
     try {
       const storedItems = await AsyncStorage.getItem('@stock_items');
       if (storedItems !== null) {
-        setStockItems(JSON.parse(storedItems));
+        const allItems = JSON.parse(storedItems);
+        // Filtra os itens de estoque para mostrar apenas os do usuário logado
+        const userItems = allItems.filter(item => item.userId === userId);
+        setStockItems(userItems);
       }
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível carregar os itens de estoque');
@@ -94,10 +124,6 @@ export default function ViewStock() {
       Alert.alert('Erro', 'Não foi possível remover o item');
     }
   };
-
-  useEffect(() => {
-    loadStockItems();
-  }, []);
 
   return (
     <View style={styles.container}>
