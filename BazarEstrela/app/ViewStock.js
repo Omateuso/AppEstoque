@@ -3,10 +3,15 @@ import { View, Text, FlatList, Pressable, Alert, Image, TextInput } from 'react-
 import AsyncStorage from '@react-native-async-storage/async-storage'; 
 import { styles } from '../src/styles/index';
 import { useRouter } from 'expo-router';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 export default function ViewStock() {
   const [itemName, setItemName] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [purchasePrice, setPurchasePrice] = useState('');
+  const [salePrice, setSalePrice] = useState('');
+  const [purchaseDate, setPurchaseDate] = useState('');
   const [stockItems, setStockItems] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const router = useRouter();
@@ -36,8 +41,17 @@ export default function ViewStock() {
         item.name.toLowerCase() === itemName.toLowerCase() && item.userId === userId
       );
 
+      const newItem = { 
+        id: Date.now().toString(), 
+        name: itemName, 
+        quantity: parseInt(quantity), 
+        userId,
+        purchasePrice: purchasePrice ? parseFloat(purchasePrice) : null, // Optional
+        salePrice: salePrice ? parseFloat(salePrice) : null, // Optional
+        purchaseDate: purchaseDate ? purchaseDate : null // Optional
+      };
+
       if (existingItemIndex !== -1) {
-        // Item já existe, apenas aumenta a quantidade
         const updatedStockItems = [...stockItems];
         updatedStockItems[existingItemIndex].quantity += parseInt(quantity);
         await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedStockItems));
@@ -45,8 +59,6 @@ export default function ViewStock() {
         Alert.alert('Sucesso', `Quantidade de ${itemName} aumentada em ${quantity}`);
         setStockItems(updatedStockItems);
       } else {
-        // Item não existe, adiciona um novo
-        const newItem = { id: Date.now().toString(), name: itemName, quantity: parseInt(quantity), userId };
         const updatedStockItems = [...stockItems, newItem];
         await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedStockItems));
 
@@ -57,6 +69,9 @@ export default function ViewStock() {
       // Limpa os campos e fecha o formulário
       setItemName('');
       setQuantity('');
+      setPurchasePrice('');
+      setSalePrice('');
+      setPurchaseDate('');
       setShowForm(false);
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível adicionar o item');
@@ -125,9 +140,35 @@ export default function ViewStock() {
     }
   };
 
+  const generateJsonFile = async () => {
+    try {
+      // Cria uma cópia dos itens, excluindo o ID e formatando preços
+      const itemsWithoutId = stockItems.map(({ id, purchasePrice, salePrice, ...item }) => ({
+        ...item,
+        purchasePrice: purchasePrice !== null ? `R$ ${purchasePrice.toFixed(2)}` : null,
+        salePrice: salePrice !== null ? `R$ ${salePrice.toFixed(2)}` : null,
+      }));
+
+      const jsonString = JSON.stringify(itemsWithoutId, null, 2);
+      const fileUri = FileSystem.documentDirectory + 'stock_items.json';
+      await FileSystem.writeAsStringAsync(fileUri, jsonString);
+      
+      await Sharing.shareAsync(fileUri);
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível gerar o arquivo JSON');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.formTitle}>Estoque Atual</Text>
+
+      <Pressable 
+        style={styles.formButton}
+        onPress={() => router.push('/home')} // Navega para a página inicial
+      >
+        <Text style={styles.textButton}>Voltar à Página Inicial</Text>
+      </Pressable>
 
       {!showForm && (
         <Pressable 
@@ -162,6 +203,29 @@ export default function ViewStock() {
             keyboardType="numeric"
           />
 
+          <TextInput
+            style={styles.formInput}
+            placeholder="Preço de Compra (R$)"
+            value={purchasePrice}
+            onChangeText={setPurchasePrice}
+            keyboardType="numeric"
+          />
+
+          <TextInput
+            style={styles.formInput}
+            placeholder="Preço de Venda (R$)"
+            value={salePrice}
+            onChangeText={setSalePrice}
+            keyboardType="numeric"
+          />
+
+          <TextInput
+            style={styles.formInput}
+            placeholder="Data da Compra (opcional)"
+            value={purchaseDate}
+            onChangeText={setPurchaseDate}
+          />
+
           <Pressable 
             style={styles.iconeButton}
             onPress={handleAddItem}
@@ -178,6 +242,9 @@ export default function ViewStock() {
           <View style={styles.item}>
             <Text>{item.name}</Text>
             <Text>Quantidade: {item.quantity}</Text>
+            <Text>Preço de Compra: {item.purchasePrice ? item.purchasePrice : 'N/A'}</Text>
+            <Text>Preço de Venda: {item.salePrice ? item.salePrice : 'N/A'}</Text>
+            <Text>Data da Compra: {item.purchaseDate || 'N/A'}</Text>
 
             <View style={{ flexDirection: 'row' }}>
               <Pressable 
@@ -208,9 +275,9 @@ export default function ViewStock() {
 
       <Pressable 
         style={styles.formButton}
-        onPress={() => router.push("/home")} 
+        onPress={generateJsonFile}
       >
-        <Text style={styles.textButton}>Voltar</Text>
+        <Text style={styles.textButton}>Gerar JSON</Text>
       </Pressable>
     </View>
   );
