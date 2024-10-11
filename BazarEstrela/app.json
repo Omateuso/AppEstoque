@@ -7,7 +7,7 @@
     "plugins": [
       "expo-router"
     ],
-    "name": "router-estoque",
+    "name": "Bazar Estrela",
     "slug": "router-estoque",
     "extra": {
       "eas": {
@@ -15,7 +15,16 @@
       }
     },
     "android": {
-      "package": "com.omateuso.routerestoque"
+      "package": "com.omateuso.routerestoque",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.png"
+      }
+    },
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image":"./assets/splash.png"},
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+
     }
-  }
 }
