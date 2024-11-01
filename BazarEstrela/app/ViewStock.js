@@ -46,8 +46,8 @@ export default function ViewStock() {
         name: itemName, 
         quantity: parseInt(quantity), 
         userId,
-        purchasePrice: purchasePrice ? parseFloat(purchasePrice) : null, // Optional
-        salePrice: salePrice ? parseFloat(salePrice) : null, // Optional
+        purchasePrice: purchasePrice ? parseFloat(purchasePrice) : null, // Opcional
+        salePrice: salePrice ? parseFloat(salePrice) : null, // Opcional
         purchaseDate: purchaseDate ? purchaseDate : null // Optional
       };
 
