@@ -53,15 +53,18 @@ export default function ViewStock() {
       const existingItemIndex = stockItems.findIndex(item => 
         item.name.toLowerCase() === itemName.toLowerCase() && item.userId === userId
       );
+      const currentDate = new Date();
+      const formattedDate = `${String(currentDate.getDate()).padStart(2, '0')}/${String(currentDate.getMonth() + 1).padStart(2, '0')}/${currentDate.getFullYear()}`;
+      const finalPurchaseDate = purchaseDate || formattedDate;
   
       const newItem = { 
         id: Date.now().toString(), 
         name: itemName, 
         quantity: parseInt(quantity), 
         userId,
-        purchasePrice: purchasePrice ? parseFloat(purchasePrice) : null,
-        salePrice: salePrice ? parseFloat(salePrice) : null,
-        purchaseDate: purchaseDate ? purchaseDate : null
+        purchasePrice: purchasePrice ? `R$ ${parseFloat(purchasePrice).toFixed(2)}` : 'N/A',
+        salePrice: salePrice ? `R$ ${parseFloat(salePrice).toFixed(2)}` : 'N/A',
+        purchaseDate: finalPurchaseDate
       };
   
       if (existingItemIndex !== -1) {
@@ -121,6 +124,14 @@ export default function ViewStock() {
       await AsyncStorage.setItem('@stock_items', JSON.stringify(updatedItems));
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível atualizar a quantidade');
+    }
+  };
+  
+  const formatPurchaseDate = (date) => {
+    if (date.length === 2 || date.length === 5) {
+      setPurchaseDate(date + '/');
+    } else {
+      setPurchaseDate(date);
     }
   };
 
@@ -230,11 +241,12 @@ export default function ViewStock() {
             keyboardType="numeric"
           />
 
-          <TextInput
+           <TextInput
             style={styles.formInput}
-            placeholder="Data da Compra (opcional)"
+            placeholder="Data da Compra (dd/mm/aaaa)"
             value={purchaseDate}
-            onChangeText={setPurchaseDate}
+            onChangeText={(date) => formatPurchaseDate(date)}
+            keyboardType="numeric"
           />
 
           <Pressable 
