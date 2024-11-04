@@ -1,5 +1,4 @@
-// test/firebase.test.js
-import { firebaseApp, initAuth } from "../src/firebase/firebase.config"; // ajuste o caminho conforme necessário
+import { firebaseApp, initAuth } from "../src/firebase/firebase.config"; 
 import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";

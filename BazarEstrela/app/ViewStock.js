@@ -77,10 +77,8 @@ export default function ViewStock() {
         setStockItems(updatedStockItems);
       }
   
-      // Recarrega os itens após a adição
-      loadStockItems(userId); // Recarrega os itens para garantir que está exibindo os corretos
+      loadStockItems(userId);
   
-      // Limpa os campos e fecha o formulário
       setItemName('');
       setQuantity('');
       setPurchasePrice('');
@@ -97,7 +95,7 @@ export default function ViewStock() {
       const storedItems = await AsyncStorage.getItem('@stock_items');
       if (storedItems !== null) {
         const allItems = JSON.parse(storedItems);
-        const userItems = allItems.filter(item => item.userId === userId); // Filtrando corretamente pelos itens do usuário
+        const userItems = allItems.filter(item => item.userId === userId);
         setStockItems(userItems);
       }
     } catch (error) {
@@ -155,7 +153,7 @@ export default function ViewStock() {
 
   const generateJsonFile = async () => {
     try {
-      // Cria uma cópia dos itens, excluindo o ID e formatando preços
+
       const itemsWithoutId = stockItems.map(({ id, purchasePrice, salePrice, ...item }) => ({
         ...item,
         purchasePrice: purchasePrice !== null ? `R$ ${purchasePrice.toFixed(2)}` : null,
@@ -178,7 +176,7 @@ export default function ViewStock() {
 
       <Pressable 
         style={styles.formButton}
-        onPress={() => router.push('/home')} // Navega para a página inicial
+        onPress={() => router.push('/home')} 
       >
         <Text style={styles.textButton}>Voltar à Página Inicial</Text>
       </Pressable>
@@ -263,7 +261,7 @@ export default function ViewStock() {
               <Pressable 
                 style={styles.iconeButton}
                 onPress={() => decreaseQuantity(item.id)} 
-                disabled={item.quantity <= 0} // Desabilita se a quantidade for zero
+                disabled={item.quantity <= 0} 
               >
                 <Text style={styles.textButton}>-</Text>
               </Pressable>

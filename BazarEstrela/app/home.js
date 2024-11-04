@@ -1,41 +1,39 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useRouter } from "expo-router"; // Usar para navegação entre telas
+import { useRouter } from "expo-router";
 import {auth} from '../src/firebase/firebase.config';
 
 export default function Home() {
   const router = useRouter();
 
   const logout = () => {
-    // Função de logout, pode ser usada para limpar as credenciais do usuário
     alert('Você foi deslogado!');
-    router.push("//index"); // Redireciona para a tela de login
+    router.push("//index");
   };
 
   return (
     <View style={styles.container}>
-      {/* Exibir o e-mail do usuário logado */}
       <Text style={styles.email}>{auth.currentUser ? auth.currentUser.email : 'Usuário Desconhecido'}</Text>
 
       <Text style={styles.title}>Bem-vindo ao Gerenciador de Estoque</Text>
 
       <Pressable
         style={styles.button}
-        onPress={() => router.push("/ViewStock")} // Navegar para a tela de visualização de estoque
+        onPress={() => router.push("/ViewStock")} 
       >
         <Text style={styles.buttonText}>Visualizar Estoque</Text>
       </Pressable>
 
       <Pressable
         style={styles.button}
-        onPress={() => router.push("/nf")} // Navegar para a tela de geração de nota fiscal
+        onPress={() => router.push("/nf")}
       >
         <Text style={styles.buttonText}>Gerar Nota Fiscal</Text>
       </Pressable>
 
       <Pressable
         style={[styles.button, styles.logoutButton]}
-        onPress={logout} // Função de logout
+        onPress={logout}
       >
         <Text style={styles.buttonText}>Sair</Text>
       </Pressable>
@@ -74,7 +72,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   email: {
-    position: 'absolute', // Posição absoluta para o canto superior direito
+    position: 'absolute', 
     top: 20,
     right: 20,
     fontSize: 16,
