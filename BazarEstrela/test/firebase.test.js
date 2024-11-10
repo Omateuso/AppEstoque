@@ -19,7 +19,7 @@ describe("Firebase Configuration", () => {
     firebaseApp();
 
     expect(initializeApp).toHaveBeenCalledWith({
-      apiKey: "AIzaSyCYsI8WOJKl1hfyFOxiWSzpyjB2mZ3bgv8",
+      apiKey: "-----------------------------------",
       authDomain: "bazarestrela-d30a2.firebaseapp.com",
       projectId: "bazarestrela-d30a2",
       storageBucket: "bazarestrela-d30a2.appspot.com", 
